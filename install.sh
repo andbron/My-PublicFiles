@@ -1,12 +1,5 @@
 #!/bin/bash
 #
-# Setup Logging
-#
-sudo mkdir /tmp/install; cd /tmp/install
-sudo touch ado_cloud_init.log
-sudo echo "[$(date +%F_%T)] $(pwd)" >> ado_cloud_init.log
-sudo echo "[$(date +%F_%T)] Starting cloud_init script" >> ado_cloud_init.log
-#
 # Package Upgrade
 #
 sudo apt-get update -y
