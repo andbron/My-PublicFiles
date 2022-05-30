@@ -1,6 +1,5 @@
 
-<!doctype html>
-<html lang="en-US" prefix="og: https://ogp.me/ns#">
+
 
 			
 <h2 class="has-text-align-center has-text-color" id="branch" style="color:#d8c13a"><strong>Git Branch Commands</strong></h2>
