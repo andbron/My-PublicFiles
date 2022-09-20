@@ -1,11 +1,4 @@
-From: <Saved by Blink>
-Snapshot-Content-Location: https://dev.thanaism.com/2021/08/install-terraform/
-Subject: Installing Terraform on WSL and Upgrading
-Date: Tue, 20 Sep 2022 02:32:30 -0000
-MIME-Version: 1.0
-Content-Type: multipart/related;
-	type="text/html";
-	boundary="----MultipartBoundary--NtTD3lcuwF7TrFYn0zDw0ROV05kRnGzvW30ykLW3D4----"
+Sourced from here: https://dev.thanaism.com/2021/08/install-terraform/#:~:text=Installing%20Terraform%20on%20WSL2%20There%20are%20two%20ways,a%20Mac%2C%20you%20are%20probably%20familiar%20with%20homebrew.
 
 <h2>This article shows you</h2>
 <p>How to install and upgrade Terraform on WSL2 (Ubuntu 20.04).</p>
