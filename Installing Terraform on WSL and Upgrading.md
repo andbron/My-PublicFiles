@@ -2,7 +2,7 @@ Sourced from here: https://dev.thanaism.com/2021/08/install-terraform/#:~:text=I
 
 <h2>This article shows you</h2>
 <p>How to install and upgrade Terraform on WSL2 (Ubuntu 20.04).</p>
-<p>The Reference Link is <a href=3D"[https://dev.thanaism.com/2021/08/install-terraform/#:~:text=Installing%20Terraform%20on%20WSL2%20There%20are%20two%20ways,a%20Mac%2C%20you%20are%20probably%20familiar%20with%20homebrew]">here</a>.</p>
+<p>The Reference Link is <a href="https://dev.thanaism.com/2021/08/install-terraform/#:~:text=Installing%20Terraform%20on%20WSL2%20There%20are%20two%20ways,a%20Mac%2C%20you%20are%20probably%20familiar%20with%20homebrew" target="here">Text Link</a>
 <h2>Installing Terraform on WSL2</h2>
 <p>There are two ways to do this: using homebrew or downloading the binarie=
 s directly.</p>
