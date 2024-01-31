@@ -1,6 +1,6 @@
-#
+# A Practical Guide to Zone Redundant AKS Clusters and Storage - Microsoft Community Hub
 
-    A Practical Guide to Zone Redundant AKS Clusters and Storage - Microsoft Community Hub
+==Reference Link is: https://techcommunity.microsoft.com/t5/fasttrack-for-azure/a-practical-guide-to-zone-redundant-aks-clusters-and-storage/ba-p/4036254?trk=feed-detail_main-feed-card_feed-article-content click link==
 
 Resilience is a critical aspect of any modern application infrastructure. When failures occur, a resilient solution is capable of recovering quickly and maintaining functionality. To enhance the intra-region resiliency of an [Azure Kubernetes Service (AKS)](https://learn.microsoft.com/en-us/azure/aks/intro-kubernetes) cluster, creating a zone redundant cluster is of utmost importance. This article explains how you can create a zone redundant AKS cluster and the implications of each approach on the deployment strategy and configuration of the persistent volumes used by the workloads. [Here](https://github.com/Azure-Samples/zone-redundant-aks-and-storage)
 
