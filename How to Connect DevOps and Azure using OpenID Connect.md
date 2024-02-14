@@ -59,19 +59,25 @@ New-AzADServicePrincipal -ApplicationId '<AppId>'
 
 ## Manually Create DevOps Service Connection
 
-From Devops, navigate to **Project Settings**, then select the "Service Connections\*\* tab.
+From Devops, navigate to **Project Settings**, then select the **Service Connections** tab.
 
-Click **New service connection** and select **Azure Resource Manager**.
+Click **New service connection** and select **Azure Resource Manager**, then select **Next**.
 
-![azure devops service connection using workload identity](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/))
+Select **Workload Identity Federation (manual)** followed by **Next**.
 
-Choose the **Service Principal (manual)** authentication method and enter the **Subscription ID**, **Subscription Name**, **Service Principal ID**, and **Service Principal Key**. Click **Verify connection** to ensure the service connection is successful.
+![azure devops service connection using workload identity](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/ado-service-connect-create.jpg)
+
+Enter the **Service Connection Name** and optionally add a **Description**, then select **Next**.
+
+Leave this window open as you will need the **Issuer** and **Subject Identifier** from the **_New Service Connection_** blade when completing the next step.
+</br>
+</br>
 
 ## Create Federated Credentials
 
-Next, create federated credentials in the application registration you created in the previous step. The federated credentials trust tokens issued by GitHub Actions. The GitHub Actions workflow requests a token for authentication and uses the Azure login action to gain access to your tenant.
+Next, create federated credentials in the application registration you created in the previously. The federated credentials trust tokens issued by the DevOps Service Connection. When the Service Connection is defined in a pipeline which is executed, a token for authentication is issued and is passed through to the Azure login request to gain access to your tenant.
 
-Navigate to the Microsoft Entra admin center (https://entra.microsoft.com) and expand the **Identity** menu on the left. From there, expand **Applications**, then select **App registrations**.
+In a new browser tab, navigate to the Microsoft Entra admin center (https://entra.microsoft.com) and expand the **Identity** menu on the left. From there, expand **Applications**, then select **App registrations**.
 
 ![entra id application registrations](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/entra-id-blades.jpg)
 
@@ -83,78 +89,49 @@ In the **App registration** window, select the **All applications** tab, then se
 
 ![azure application registration federated credentials](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/spn-federated-credentials.jpg)
 
-Select **\+ Add credential** to create a new federated credential to trust GitHub Actions token requests. In the **Add a credential** window, select the dropdown menu for **Federated credential scenario** and select **GitHub Actions deploying Azure resources**.
+Select **\+ Add credential** to create a new federated credential to trust the DevOps Service Connection token requests. In the **Add a credential** window, select the dropdown menu for **Federated credential scenario** and select **Other Issuer**.
 
-Continue filling out the GitHub account information. Enter the **Organization** and **Repository** name associated with the GitHub Actions workflow. Select the **Entity type** to scope the OIDC request from the workflow. Entity type options include **Environment**, **Branch**, **Pull request**, or **Tag**. This example uses **Pull request**.
+Continue filling out the information. Enter the **Issuer** and **Subject Identifier** from the Service Connection Browser tab, add a name, and optionally add a description for the federated credential. Click **Add** to create the federated credential.
 
-For **Credential details**, include a **Name** and **Description** of the federated credential. Click **Add** to create the federated credential.
+![azure application registration federated credentials](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/spn-federated-credentials-create.jpg)
 
-![azure app registration federated credentials](https://jeffbrown.tech/wp-content/uploads/2023/08/appreg_createfedcred-1.png)
+</br>
+</br>
 
-Example federated credentials associated with pull requests in a GitHub repository
+## Assign RBAC Role to Service Principal
 
-Continue adding federated credentials for each GitHub Action workflow you are creating. You will use the example above for a pull request workflow, but you can also create a federated credential for GitHub environments, repository branches, or tags.
+Apply the necessary role-based access control (RBAC) role to the service principal. This role will define the permissions the service principal has in your Azure tenant. The role can be as granular as you need, such as a contributor role for a specific resource group or a reader role for a specific subscription.
 
-## Create GitHub Secrets
+</br>
+</br>
 
-Next, you need to create GitHub secrets with the application registration and federated credentials. The GitHub secrets contain the **Client ID**, **Tenant ID**, and **Subscription ID** of the application registration, and GitHub uses these for the login action inside the workflow.
+## Complete DevOps Service Connection Creation
 
-**Note:** The application registration’s Client ID is the same as the Application ID. The Azure CLI and Azure PowerShell methods displayed this value when you created them earlier in this guide. If you need these values again, return to the application registration in the Azure portal and view the **Client ID** and **Directory (tenant) ID** in the **Overview** section.
+Next, return to the browser tab containing the new service connection page, complete the form by entering the **Application Registration Client Id** and **Tenant Id** from the previous browser tab, in addition, add the **Subscription Id** and **Subscription Name**, then select **Verify and Save**.
 
-![view azure application registration client tenant id](https://jeffbrown.tech/wp-content/uploads/2023/09/appreg_overview.png)
-
-Viewing application registration Client and Tenant ID
-
-Next, navigate to your GitHub account and repository. In the repository, select **Settings** at the top.
-
-![github access repository settings](https://jeffbrown.tech/wp-content/uploads/2023/09/github_repo_settings.png)
-
-Under **Security**, expand **Secret and variables in the Settings page**, then select **Actions**.
-
-![github repository secrets](https://jeffbrown.tech/wp-content/uploads/2023/09/actions.png)
-
-On the **Secret** tab, select **New repository secret**. On the **New secret** page, enter the secret’s **Name** followed by the **Secret** value.
-
-The table below shows what you should name each secret and its value. Replace the secret value with the actual values from your environment. Save each secret by clicking **Add secret**.
-
-| GitHub Secret Name    | Secret Value      |
-| --------------------- | ----------------- |
-| AZURE_CLIENT_ID       | <Client ID>       |
-| AZURE_TENANT_ID       | <Tenant ID>       |
-| AZURE_SUBSCRIPTION_ID | <Subscription ID> |
-
-![github repository openid secrets list](https://jeffbrown.tech/wp-content/uploads/2023/09/secrets_list.png)
-
-Complete secrets list
+![azure application registration federated credentials](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/ado-service-connect-create-complete.jpg)
 
 ## Authenticate with OpenID Connect
 
-GitHub Actions workflow is now ready to use OpenID Connect to authenticate to Azure. The example below shows the [Azure login action](https://github.com/marketplace/actions/azure-login) with Azure CLI to authenticate to Azure. The secrets you created in the previous step are referenced in the login action’s `client-id`, `tenant-id`, and `subscription-id` values.
+DevOps Pipeline is now ready to use OpenID Connect to authenticate to Azure via the Workload Identity Service Connection. The example below shows the [AzureCLI@2](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-cli-v2?view=azure-pipelines) task with the service connection to authenticate to Azure. By using the **addSpnToEnvironment** attribute set to `$true` makes available the service principal ID, workload identity federation token, and tenant ID of the Azure endpoint to the tasks execution environment.
 
 ```
-- name: az cli login
-  uses: azure/login@v1
-  with:
-    client-id: ${{ secrets.AZURE_CLIENT_ID }}
-    tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-    subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+- task: AzureCLI@2
+  displayName: 'Validate OIDC Service Connection Authentication to Azure'
+  inputs:
+    azureSubscription: modules-oidc-manual
+    addSpnToEnvironment: true
+    scriptType: pscore
+    scriptLocation: inlineScript
+    inlineScript: |
+      Install-Module -Name Az -Repository PSGallery -Force
+      Connect-AzAccount -ApplicationId $ENV:servicePrincipalId -Tenant $ENV:tenantId -FederatedToken $ENV:idToken
+      Get-AzContext
 
 ```
 
-To verify a successful login, view a workflow run after it has been executed. Find the az cli login step and look for the Login successful message. If you expand the step’s first line, the **client-id**, **tenant-id**, and **subscription-id** values are obfuscated as the workflow retrieves these secret values from the repository settings.
+**_You can use the servicePrincipalId, servicePrincipalKey or idToken, and tenantId variables in your script._**
 
-![github actions workflows successful openid authentication](https://jeffbrown.tech/wp-content/uploads/2023/09/successfull_azure_login.png)
+To verify a successful login, view a pipeline run after it has been executed. Find the az cli login step in the top half of the following image. The second highlight validates the use of the federated token made available to the task during runtime.
 
-Viewing a successful login using OpenID Connect and Azure
-
-## Summary of GitHub and Azure with OpenID Connect
-
-Using OpenID Connect with GitHub and Azure provides a seamless and more secure configuration to deploy and manage Azure. You will no longer need to manage secrets that expire and can use granular permissions to limit when GitHub requests an authentication token.
-
-**Reference:**  
-[Microsoft Learn: Use GitHub Actions to connect to Azure](https://learn.microsoft.com/azure/developer/github/connect-from-azure)  
-[GitHub: Configuring OpenID Connect in Azure](https://docs.github.com/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure)
-
-Check out more of my Git and GitHub-related articles **[here](https://jeffbrown.tech/category/git/)**!
-
-## Post navigation
+![devops pipeline successful openid authentication](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/workload-identity-auth-proof.jpg)
