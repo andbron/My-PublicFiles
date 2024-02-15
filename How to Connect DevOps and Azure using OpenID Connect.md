@@ -65,7 +65,7 @@ Click **New service connection** and select **Azure Resource Manager**, then sel
 
 Select **Workload Identity Federation (manual)** followed by **Next**.
 
-![azure devops service connection using workload identity](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/ado-service-connect-create.jpg)
+![azure devops service connection using workload identity](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/ado-service-connect-create.jpg){:height="100px" width="500px"}
 
 Enter the **Service Connection Name** and optionally add a **Description**, then select **Next**.
 
@@ -79,7 +79,7 @@ Next, create federated credentials in the application registration you created i
 
 In a new browser tab, navigate to the Microsoft Entra admin center (https://entra.microsoft.com) and expand the **Identity** menu on the left. From there, expand **Applications**, then select **App registrations**.
 
-![entra id application registrations](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/entra-id-blades.jpg)
+![entra id application registrations](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/entra-id-blades.jpg){:height="10px" width="250px"}
 
 </br>
 
@@ -87,13 +87,13 @@ In the **App registration** window, select the **All applications** tab, then se
 
 </br>
 
-![azure application registration federated credentials](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/spn-federated-credentials.jpg)
+![azure application registration federated credentials](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/spn-federated-credentials.jpg){:height="100px" width="500px"}
 
 Select **\+ Add credential** to create a new federated credential to trust the DevOps Service Connection token requests. In the **Add a credential** window, select the dropdown menu for **Federated credential scenario** and select **Other Issuer**.
 
 Continue filling out the information. Enter the **Issuer** and **Subject Identifier** from the Service Connection Browser tab, add a name, and optionally add a description for the federated credential. Click **Add** to create the federated credential.
 
-![azure application registration federated credentials](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/spn-federated-credentials-create.jpg)
+![azure application registration federated credentials](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/spn-federated-credentials-create.jpg){:height="100px" width="500px"}
 
 </br>
 </br>
@@ -109,7 +109,7 @@ Apply the necessary role-based access control (RBAC) role to the service princip
 
 Next, return to the browser tab containing the new service connection page, complete the form by entering the **Application Registration Client Id** and **Tenant Id** from the previous browser tab, in addition, add the **Subscription Id** and **Subscription Name**, then select **Verify and Save**.
 
-![azure application registration federated credentials](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/ado-service-connect-create-complete.jpg)
+![azure application registration federated credentials](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/ado-service-connect-create-complete.jpg){:height="100px" width="500px"}
 
 ## Authenticate with OpenID Connect
 
@@ -134,4 +134,4 @@ DevOps Pipeline is now ready to use OpenID Connect to authenticate to Azure via 
 
 To verify a successful login, view a pipeline run after it has been executed. Find the az cli login step in the top half of the following image. The second highlight validates the use of the federated token made available to the task during runtime.
 
-![devops pipeline successful openid authentication](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/workload-identity-auth-proof.jpg)
+![devops pipeline successful openid authentication](./_images/Connect-DevOps-and-Azure-using-OpenID-Connect/workload-identity-auth-proof.jpg){:height="100px" width="500px"}
