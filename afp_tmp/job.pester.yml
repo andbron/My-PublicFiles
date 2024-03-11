@@ -1,0 +1,91 @@
+parameters:
+  targetPath: "" #$(modulePath)
+  poolName_module_development: "" #"$(poolName_module_development)"
+  vmImage: "windows-latest" #"ubuntu-latest" #'windows-latest'
+  # firstStagePoolName: '' #'$(firstStagePoolName)'
+  terraformVersion: $(terraformVersion)
+  condition: succeeded()
+  # enableTFValidate: true
+  # enableTFLint: true
+  # disableGlobalTFLintRules: false
+  # enableTFSec: true
+  # disableGlobalTFSecRules: false
+  # enablePester: true
+  dependsOn: ""
+
+jobs:
+  - job: pipeline_unit_tests
+    condition: ${{ parameters.condition }}
+    dependsOn: ${{ parameters.dependsOn }}
+    # pool:
+    #   vmImage: ${{  parameters.vmImage }}
+    pool:
+      ${{ if not(eq(parameters['poolName_module_development'], '')) }}:
+        name: ${{  parameters.poolName_module_development }}
+      ${{ if eq(parameters['poolName_module_development'], '') }}:
+        vmImage: ${{  parameters.vmImage }}
+    workspace:
+      clean: all
+    steps:
+      - checkout: self
+        persistCredentials: true
+        path: self
+
+      - checkout: management
+        path: management
+
+      - task: TerraformInstaller@0
+        displayName: Install Terraform
+        inputs:
+          terraformVersion: "${{ parameters.terraformVersion }}"
+
+      # - task: tfsec@1
+      #   condition: succeededOrFailed()
+      #   displayName: Run TFSec
+      #   inputs:
+      #     args: --custom-check-dir $(Pipeline.Workspace)/management/.pipelines/testing/tf/tfsec/custom_tfchecks.json --soft-fail
+      #     dir: '$(Pipeline.Workspace)/$(workingDirectory)'
+
+      - task: PowerShell@2
+        displayName: Print Environment Variables
+        inputs:
+          targetType: "inline"
+          script: |
+            Get-ChildItem Env:* | Select-Object -Property Name,Value
+          pwsh: true
+
+      - task: PowerShell@2
+        condition: succeededOrFailed()
+        displayName: Execute Unit Tests
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          # AZDO_PERSONAL_ACCESS_TOKEN: $(System.AccessToken)
+          # HTTP_PROXY: $(proxy)
+          # HTTPS_PROXY: $(proxy)
+          # NO_PROXY: $(no_proxy)
+        inputs:
+          targetType: "inline"
+          script: |
+            Install-Module -Name Pester -Force -SkipPublisherCheck
+            Import-Module Pester
+            # $configuration = [PesterConfiguration]::Default
+            $configuration = New-PesterConfiguration
+            $configuration.Should.ErrorAction       = "Continue"
+            $configuration.TestResult.Enabled       = $true
+            $configuration.TestResult.OutputFormat  = "NUnitXml"
+            $configuration.TestResult.OutputPath    = "$($ENV:SYSTEM_DEFAULTWORKINGDIRECTORY)/testResults.xml"
+            $configuration.Output.CIFormat          = "AzureDevops"
+            . $(Pipeline.Workspace)/management/.pipelines/testing/pester/test.controller.ps1 -PesterConfiguration $configuration
+          pwsh: true
+          workingDirectory: "$(Pipeline.Workspace)/$(workingDirectory)"
+
+      - task: PublishTestResults@2
+        displayName: Publish Test Results
+        inputs:
+          testResultsFormat: NUnit
+          testResultsFiles: "**/test*.xml"
+          mergeTestResults: true
+          testRunTitle: "Build Tests"
+          failTaskOnFailedTests: true
+        continueOnError: true
+        condition: always()

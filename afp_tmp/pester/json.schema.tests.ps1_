@@ -1,0 +1,38 @@
+Describe "JSON Schema" {
+
+    BeforeAll {
+        # Configure JSON Schema Validation tool
+        # Install AJV CLI - https://github.com/ajv-validator/ajv-cli. NOTE: There is an inbuilt PS cmdlet "Test-Json", but it does not fully support the latest JSON Schema spec, AJV is more complete.
+        if ($null -eq (Get-Command "ajv" -ErrorAction SilentlyContinue)) {
+            npm install -g ajv-cli			
+        }
+        $spec = "draft2020"
+        Import-Module  (Join-Path $PSScriptRoot "..\..\cli\src\EcpModule.psm1") -Force
+    }
+
+    Context "node-config.json" -Tag "config","template" {
+        It "has a node config file [<file>] that is valid against the JSON Schema [<schema>]" -ForEach @(
+            @{ 
+                file = "node-config.json"
+                schema = Resolve-Path (Join-Path $PSScriptRoot "..\..\jsonschemas\node-config.schema.json")
+            }
+        ){
+            $result = ajv -s $schema -d $file --spec=$spec --errors=line --all-errors 2>&1
+            [array]$validationerrors = $result | select-object -skip 1 | ConvertFrom-Json -Depth 20
+            $validationerrors | ForEach-Object {$_.params = $_.params |ConvertTo-Json -Compress}
+            $validationerrors | Should -Be @() -Because "all node_stages JSON must be in the schema for documentation and validation purposes."
+        }
+    }
+
+    Context "stage" -Tag "config" {
+        It "has a node stages file that is valid against the JSON Schema" {
+            $node = Get-EcpNodeFromPath
+            $schema = Resolve-Path (Join-Path $PSScriptRoot "..\..\jsonschemas\node_stages.schema.json")
+            $result = ajv -s $schema -d $node.stagesPath --spec=$spec --errors=line --all-errors 2>&1
+            [array]$validationerrors = $result | select-object -skip 1 | ConvertFrom-Json -Depth 20
+            $validationerrors | ForEach-Object {$_.params = $_.params |ConvertTo-Json -Compress}
+            $validationerrors | Should -Be @() -Because "all node_stages JSON must be in the schema for documentation and validation purposes."
+        }
+    }
+
+}

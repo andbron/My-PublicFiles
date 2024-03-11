@@ -1,0 +1,5 @@
+{
+    "plan": true,
+    "apply": true,
+    "destroy": true
+}

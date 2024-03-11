@@ -1,0 +1,54 @@
+name: "module validate and publish"
+
+parameters:
+  - name: enableUnitTests
+    type: boolean
+    default: true
+    values:
+      - true
+      - false
+
+variables:
+  - name: system.debug
+    value: true
+  - name: moduleName
+    value: $(Build.Repository.Name)
+  - name: modulePath
+    value: $(System.DefaultWorkingDirectory)
+  - name: workingDirectory
+    value: "self"
+  - template: .pipelines/.settings.yml@management
+
+trigger:
+  branches:
+    include:
+      - feature/*
+      - main
+  paths:
+    exclude:
+      - docs
+      - README.md
+
+resources:
+  repositories:
+    - repository: management
+      type: git
+      name: EL23-Management/management
+      ref: refs/heads/main
+
+stages:
+  - stage: Validate
+    displayName: Validate
+    jobs:
+      - template: .pipelines/templates/job.pester.yml@management
+      - template: .pipelines/templates/job.tfdocs.yml@management
+      - template: .pipelines/templates/job.tf_unit_testing.yml@management
+        parameters:
+          terraformVersion: $(terraformVersion)
+          ${{ eq('${{parameters.enableUnitTests}}', 'false') }}:
+            condition: false
+
+  - stage: Publish
+    displayName: Publish
+    jobs:
+      - template: .pipelines/templates/job.tf_publish.yml@management

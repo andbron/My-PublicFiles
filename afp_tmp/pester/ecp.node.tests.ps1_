@@ -1,0 +1,31 @@
+Describe "Node" -Tag "config" {
+
+    BeforeAll {
+        Import-Module  (Join-Path $PSScriptRoot "..\..\cli\src\EcpModule.psm1") -Force
+        $node = Get-EcpNodeFromPath
+    }
+
+    Context "Base Node Configuration" -Tag "base" {
+        It "Has an folder created for each servicespace listed in node-config file" {
+            foreach ($ss in $node.nodeConfig.service_spaces) {
+                "services\$($ss)" | Should -Exist
+            }
+        }
+        It "Stage names should be consistent between multiStage-Vars.yml and node_stages.json" {
+            Install-YamlModule
+            Compare-StagesYamlJson -YamlPath "pipeline/Release/multiStage-Vars.yml" -JsonPath 'node_stages.json' | Should -Be $null
+        }
+    }
+
+    Context "Service Configuration" -Tag "service" {
+        It "Has an entry in the service space list of the base node config file" {
+            $serviceName = Split-Path $pwd -Leaf
+            $node.baseNodeConfig.service_spaces | Should -contain @($serviceName)
+        }
+    }
+
+    # tests for policy
+    # tests for team
+    # Validate a node dependency chain
+
+}

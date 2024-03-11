@@ -1,0 +1,112 @@
+parameters:
+  modulePath: $(modulePath)
+  # poolName: $(poolName)
+  vmImage: "" #"ubuntu-latest" #"ubuntu-latest"
+  poolName: "$(poolName_el23-bootstrap-pool)"
+  terraformVersion: $(terraformVersion)
+  identity: $(tf_unit_testing_uami)
+  condition: and(succeeded(), not(eq(variables['Build.Reason'], 'IndividualCI')))
+
+jobs:
+  - job: Detect_Unit_Tests
+    displayName: "Detecting Unit Tests"
+    condition: ${{ parameters.condition }}
+    # pool:
+    #   name: ${{ parameters.poolname }}
+    pool:
+      ${{ if not(eq(parameters['poolName'], '')) }}:
+        name: ${{  parameters.poolName }}
+      ${{ if eq(parameters['poolName'], '') }}:
+        vmImage: ${{  parameters.vmImage }}
+    workspace:
+      clean: all
+    steps:
+      - checkout: self
+
+      # If "tests" directory does not exist or contains no tests, then no tests will be run
+      - task: PowerShell@2
+        name: getTests
+        condition: succeeded()
+        displayName: Check for Unit Tests
+        inputs:
+          targetType: "inline"
+          script: |
+            Write-Output "Checking for tests"
+            $tests = Get-ChildItem "tests" -Directory -Exclude "sample" -ErrorAction SilentlyContinue
+            $tests
+            if  ($tests.count -gt 0) {
+              $mtrx = @()
+              foreach ($test in $tests.name) { 
+                $mtrx += "'$test':{'testName':'$test'}"
+              }
+              Write-Host "##vso[task.setVariable variable=unitTests;isOutput=true]{$($mtrx -join ",")}"
+            } else {
+              Write-Host "##vso[task.setVariable variable=unitTests;isOutput=true]"
+            }
+          pwsh: true
+          workingDirectory: "${{ parameters.modulepath }}"
+
+  - job: "Run_Unit_Test"
+    displayName: "Run Unit Test"
+    dependsOn: Detect_Unit_Tests
+    condition: and(succeeded(),not(eq(dependencies.Detect_Unit_Tests.outputs['getTests.unitTests'],'')))
+    strategy:
+      maxParallel: 1
+      matrix: $[ dependencies.Detect_Unit_Tests.outputs['getTests.unitTests'] ]
+    # pool:
+    #   name: ${{ parameters.poolname }}
+    pool:
+      ${{ if not(eq(parameters['poolName'], '')) }}:
+        name: ${{  parameters.poolName }}
+      ${{ if eq(parameters['poolName'], '') }}:
+        vmImage: ${{  parameters.vmImage }}
+    workspace:
+      clean: all
+    steps:
+      - checkout: self
+
+      - task: TerraformInstaller@0
+        displayName: Install Terraform
+        inputs:
+          terraformVersion: "${{ parameters.terraformVersion }}"
+
+      - task: PowerShell@2
+        name: execute_unit_test
+        displayName: Execute Unit Test
+        inputs:
+          targetType: "inline"
+          failOnStderr: true
+          script: |
+            az login --identity --username ${{ parameters.identity }}
+            $ctx = (az account show) | ConvertFrom-Json
+            $client_id = ((az identity show --ids ${{ parameters.identity }} --output json)| ConvertFrom-Json).clientId
+
+            $identityId = "${{ parameters.identity }}"
+            $subId = $identityId.split("/")[2]
+
+            $ENV:ARM_USE_MSI="true"
+            $ENV:ARM_CLIENT_ID=$client_id
+            $ENV:ARM_SUBSCRIPTION_ID=$subId
+            $ENV:ARM_TENANT_ID=$ctx.tenantId
+
+            #Set up Git crendential helper so that terraform files can download modules without needin auth tokens
+            $ENV:GIT_PAT = $ENV:SYSTEM_ACCESSTOKEN
+            git config --global credential.helper "!f() { sleep 1; echo `"username=$($ENV:GIT_PAT)`"; echo `"password=$($ENV:GIT_PAT)`"; }; f"
+
+            # Execute the test
+            & $(modulePath)/tests/$(testName)/run.ps1
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+  - job: Cleanup_failed_tests
+    displayName: "Manual Cleanup Failed Unit Tests"
+    dependsOn: Run_Unit_Test
+    condition: failed()
+    pool: server
+    timeoutInMinutes: 150 # job times out
+    steps:
+      - task: ManualValidation@0
+        timeoutInMinutes: 120 # task times out in 2 hours
+        inputs:
+          instructions: "Unit test failure detected please ensure you cleanup any failed resource deployments. This will be needed when the apply works, but the destroy fails."
+          onTimeout: "reject"

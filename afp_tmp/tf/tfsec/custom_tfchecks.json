@@ -1,0 +1,36 @@
+{
+  "checks": [
+    {
+      "code": "MOD001",
+      "description": "Check that the Terraform module source matches a certain regex pattern.",
+      "requiredTypes": ["module"],
+      "requiredLabels": ["*"],
+      "severity": "ERROR",
+      "matchSpec": {
+        "name": "source",
+        "action": "regexMatches",
+        "value": "^git::https://dev\\.azure\\.com/ecpIncubate/.*$"
+      },
+      "errorMessage": "The source of the Terraform module does not match the required pattern.",
+      "relatedLinks": [
+        "https://www.terraform.io/docs/language/modules/sources.html"
+      ]
+    },
+    {
+      "code": "CUS001",
+      "description": "Custom check to ensure all Key Vaults provisioned are via a Terraform module that meets the applicable Control Security Baselines approved by SecArch.",
+      "impact": "By not using the approved Terraform module there is a risk of configuration drift to operational state making the resource non compliant.",
+      "resolution": "Use the SecArch approved Terraform module block to provision an Azure Key Vault.",
+      "requiredTypes": ["resource"],
+      "requiredLabels": ["azurerm_key_vault"],
+      "severity": "ERROR",
+      "matchSpec": {
+        "action": "inModule"
+      },
+      "errorMessage": "The SecArch approved Terraform module is not being used to provision the an Azure Key Vault",
+      "relatedLinks": [
+        "https://dev.azure.com/XXXXXXX/ESLZ%20Modules/_git/terraform-azurerm-key-vault-key"
+      ]
+    }
+  ]
+}
