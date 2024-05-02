@@ -1,0 +1,3 @@
+route_table_assoc,route_name,address_prefix,next_hop_type,route_next_hop_in_ip_address
+subnet1,All-Traffic,0.0.0.0/0,VirtualAppliance,10.219.1.68
+AzurePrivateEndpointSubnet_vnet1,All-Traffic,0.0.0.0/0,VirtualAppliance,10.219.1.68

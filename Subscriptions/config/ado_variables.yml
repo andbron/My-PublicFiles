@@ -1,0 +1,40 @@
+variables:
+  TFStateContainer: "states"
+
+  stage1ALZName: "tcg-azu0000-nonprod-mgmt-ase"
+  stage1Env: ${{ split(variables.stage1ALZName, '-')[2] }}
+  stage1Region: ${{ split(variables.stage1ALZName, '-')[4] }}
+  stage1SubId: "d6e5dd63-38ba-4c6b-bee0-a25ecaa65664"
+  stage1TFStateSubscriptionID: "d6e5dd63-38ba-4c6b-bee0-a25ecaa65664"
+  stage1TFStateResourceGroup: "tcg-npae-mgmt-states"
+  stage1TFStateStorageAccount: "tcgnpaemgmtsastates"
+  stage1additionalParameters: "-var env_specific_config=alz_variables_$(stage1Env)_$(stage1Region).json -var env_specific_nsg_rules=nsg_rules_$(stage1Env)_$(stage1Region).csv -var env_specific_route_rules=route_rules_$(stage1Env)_$(stage1Region).csv -var env_global_config=alz_variables_$(stage1Env)_global.json -var newrelickey=$(aztec-azure-np-infrastructure)"
+
+  stage2ALZName: "tcg-azu0000-nonprod-mgmt-ae"
+  stage2Env: ${{ split(variables.stage2ALZName, '-')[2] }}
+  stage2Region: ${{ split(variables.stage2ALZName, '-')[4] }}
+  stage2SubId: "d6e5dd63-38ba-4c6b-bee0-a25ecaa65664"
+  stage2TFStateSubscriptionID: "d6e5dd63-38ba-4c6b-bee0-a25ecaa65664"
+  stage2TFStateResourceGroup: "tcg-npae-mgmt-states"
+  stage2TFStateStorageAccount: "tcgnpaemgmtsastates"
+  stage2additionalParameters: "-var env_specific_config=alz_variables_$(stage2Env)_$(stage2Region).json -var env_specific_nsg_rules=nsg_rules_$(stage2Env)_$(stage2Region).csv -var env_specific_route_rules=route_rules_$(stage2Env)_$(stage2Region).csv -var env_global_config=alz_variables_$(stage2Env)_global.json -var newrelickey=$(aztec-azure-np-infrastructure)"
+
+  ${{ if or(eq(variables['Build.SourceBranch'], 'refs/heads/main'),eq(variables['Build.Reason'], 'IndividualCI'),eq(variables['Build.Reason'], 'PullRequest'),eq(variables['Build.SourceBranch'], '')) }}:
+   
+    stage3ALZName: "tcg-azu0000-prod-mgmt-ase"
+    stage3Env: ${{ split(variables.stage3ALZName, '-')[2] }}
+    stage3Region: ${{ split(variables.stage3ALZName, '-')[4] }}
+    stage3SubId: "44aede69-04f3-4a0b-a8dc-c18e56b41b56"
+    stage3TFStateSubscriptionID: "44aede69-04f3-4a0b-a8dc-c18e56b41b56"
+    stage3TFStateResourceGroup: "tcg-pdae-mgmt-states"
+    stage3TFStateStorageAccount: "tcgpdaemgmtsastates"
+    stage3additionalParameters: "-var env_specific_config=alz_variables_$(stage3Env)_$(stage3Region).json -var env_specific_nsg_rules=nsg_rules_$(stage3Env)_$(stage3Region).csv -var env_specific_route_rules=route_rules_$(stage3Env)_$(stage3Region).csv -var env_global_config=alz_variables_$(stage3Env)_global.json -var newrelickey=$(aztec-azure-pr-infrastructure)"
+
+    stage4ALZName: "tcg-azu0000-prod-mgmt-ae"
+    stage4Env: ${{ split(variables.stage4ALZName, '-')[2] }}
+    stage4Region: ${{ split(variables.stage4ALZName, '-')[4] }}
+    stage4SubId: "44aede69-04f3-4a0b-a8dc-c18e56b41b56"
+    stage4TFStateSubscriptionID: "44aede69-04f3-4a0b-a8dc-c18e56b41b56"
+    stage4TFStateResourceGroup: "tcg-pdae-mgmt-states"
+    stage4TFStateStorageAccount: "tcgpdaemgmtsastates"
+    stage4additionalParameters: "-var env_specific_config=alz_variables_$(stage4Env)_$(stage4Region).json -var env_specific_nsg_rules=nsg_rules_$(stage4Env)_$(stage4Region).csv -var env_specific_route_rules=route_rules_$(stage4Env)_$(stage4Region).csv -var env_global_config=alz_variables_$(stage4Env)_global.json -var newrelickey=$(aztec-azure-pr-infrastructure)"

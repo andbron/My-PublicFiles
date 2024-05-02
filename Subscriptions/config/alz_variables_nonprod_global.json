@@ -1,0 +1,38 @@
+{
+    "file_purpose": "This file abstracts the input variable values to a JSON schema removing the Terraform/variables dependency. Parameters specified in this file are applicable for a specific stage or environment.",
+    "input_parameters": {
+        "app_short_name": "mgmt",
+        "app_type": "platform",
+        "connectivity_sub_id": "97b054ff-1d76-4939-964d-358a6ac6e51b",
+        "shared_sub_id": "dbd23b8a-ab6e-4c3f-9571-d6777ef9301c",
+        "private_dns_zone_rg": "tcg-npae-shared-private_dns-rg001",
+        "monitoring_sub_id": "d232763e-e4f4-4fb1-909b-dd83b4275a5b",
+        "environment": "non_production",
+        "state_storage_rg_name": "tcg-npae-mgmt-states",
+        "state_storage_account_name": "tcgnpaemgmtsastates",
+        "tags": {
+            "telstra_applicationid": "app-4904",
+            "telstra_environmentclass": "nonproduction",
+            "telstra_environmentuse": "dev",
+            "telstra_internetfacing": "false",
+            "telstra_platform": "az-tech",
+            "telstra_version": "1.0",
+            "telstra_dataclassification": "general",
+            "telstra_dataclassificationsubtype": "none",
+            "telstra_dataregion": "none",
+            "telstra_costcentre": "alz",
+            "app_contact": "az-tech@team.telstra.com"
+          },
+        "servicehealthalertscope": [
+            "/subscriptions/d6e5dd63-38ba-4c6b-bee0-a25ecaa65664"
+        ],
+        "service_health_email_receiver": {
+            "email1": {
+                "name": "Azure Telstra Cloud Platform",
+                "email_address": "AzureTelstraCloudPlatform@team.telstra.com",
+                "use_common_alert_schema": false
+            }
+        },
+        "kv_role_name_id": "e147488a-f6f5-4113-8e2d-b22465e65bf6"
+    }
+}

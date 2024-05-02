@@ -1,0 +1,37 @@
+{
+  "file_purpose": "This file abstracts the input variable values to a JSON schema removing the Terraform/variables dependency. Parameters specified in this file are applicable for a specific stage or environment.",
+  "input_parameters": {
+    "location": "australiasoutheast",
+    "environment_location_id": "pdase",
+    "vnets": [
+      {
+        "symbolic_name": "vnet1",
+        "address_space": ["10.219.34.0/25"],
+        "dns_servers": "10.219.35.180",
+        "subnets": [
+          {
+            "symbolic_name": "subnet1",
+            "address_prefixes": "10.219.34.0/26",
+            "delegation": {
+              "delegation_name": "",
+              "service_delegation_name": "",
+              "service_delegation_actions": []
+            },
+            "service_endpoints": [],
+            "service_endpoint_policy_ids": [],
+            "route_table_assoc": true
+          }
+        ],
+        "address_prefixes_private_endpoint": "10.219.34.64/26"
+      }
+    ],
+    "source_image_id_linux": "/subscriptions/4a577408-eb9b-4dfc-b0f3-5d37fcd2b3aa/resourceGroups/tcg-pdae-shared-compute_gallery-rg001/providers/Microsoft.Compute/galleries/tcgpdaesharedacg001/images/tcgpdaesharedacgd001/versions/1.0.1",
+    "admin_username": "testuser",
+    "private_ip_address_linux": "10.219.34.11",
+    "splunk_targeturi": "10.75.1.22:8089",
+    "splunk_network": "EPIC",
+    "splunk_env": "PRD",
+    "splunk_appname": "LZ",
+    "newrelic_proxy": "proxy.nexus.telstra.com.au:8080"
+  }
+}
