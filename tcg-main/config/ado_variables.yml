@@ -1,0 +1,34 @@
+variables:
+  TFStateContainer: "applz-states"
+  AppInfraProjectName: "ESLZ Infrastructure Application Landing Zones"
+
+  stage1ALZName: "tcg-<<env_shortname>>-<<app_name>>-sub001-<<loc_shortname>> example tcg-np-aXXXX-sub001-ae"
+  stage1AppName: ${{ split(variables.stage1ALZName, '-')[2] }}
+  stage1AppNameEnv: <<app_name>>_np
+  stage1Env: ${{ split(variables.stage1AppNameEnv, '_')[1] }}
+  stage1Region: "<<app_region>>"
+  stage1TFStateSubscriptionID: "d6e5dd63-38ba-4c6b-bee0-a25ecaa65664"
+  stage1TFStateResourceGroup: "tcg-npae-mgmt-states"
+  stage1TFStateStorageAccount: "tcgnpaemgmtsastates"
+  ${{ if endsWith( variables['Build.DefinitionName'], '-Pool' ) }}:
+    stage1SubId: "99fffa94-17f5-43d1-af54-ea5305e24d3c"
+    stage1additionalParameters: '-var env_specific_config="$(stage1AppName)/alz_variables_$(stage1Env)_$(stage1Region).json" -var env_global_config="$(stage1AppName)/alz_variables_$(stage1Env)_global.json" -var splunk_targeturi="10.75.1.22:8089" -var splunk_network=EPIC -var splunk_env=NPRD -var splunk_appname=LZ -var newrelickey="$(aztec-azure-np-infrastructure)" -var newrelic_proxy="proxy.nexus.telstra.com.au:8080" -var ado_server_url="$(System.CollectionUri)" -var azuredevops_project="$(AppInfraProjectName)" -var ado_pat_token="$(System.AccessToken)"'
+  ${{ else }}:
+    stage1SubId: "<<app_subscription>>"
+    stage1additionalParameters: '-var env_specific_config=alz_variables_$(stage1Env)_$(stage1Region).json -var env_global_config="alz_variables_$(stage1Env)_global.json" -var env_specific_nsg_rules=nsg_rules_$(stage1Env)_$(stage1Region).csv -var env_specific_route_rules=route_rules_$(stage1Env)_$(stage1Region).csv'
+
+  ${{ if or(eq(variables['Build.SourceBranch'], 'refs/heads/main'),eq(variables['Build.Reason'], 'IndividualCI'),eq(variables['Build.Reason'], 'PullRequest'),eq(variables['Build.SourceBranch'], '')) }}:
+    stage2ALZName: "tcg-<<env_shortname>>-<<app_name>>-sub001-<<loc_shortname>> example tcg-pd-aXXXX-sub001-ae"
+    stage2AppName: ${{ split(variables.stage2ALZName, '-')[2] }}
+    stage2AppNameEnv: <<app_name>>_prod
+    stage2Env: ${{ split(variables.stage2AppNameEnv, '_')[1] }}
+    stage2Region: "<<app_region>>"
+    stage2TFStateSubscriptionID: "44aede69-04f3-4a0b-a8dc-c18e56b41b56"
+    stage2TFStateResourceGroup: "tcg-pdae-mgmt-states"
+    stage2TFStateStorageAccount: "tcgpdaemgmtsastates"
+    ${{ if endsWith( variables['Build.DefinitionName'], '-Pool' ) }}:
+      stage2SubId: "e5c5f484-15e0-41ae-b634-a77fe2ae3d26"
+      stage2additionalParameters: '-var env_specific_config="$(stage2AppName)/alz_variables_$(stage2Env)_$(stage2Region).json" -var env_global_config="$(stage2AppName)/alz_variables_$(stage2Env)_global.json" -var splunk_targeturi="10.75.1.22:8089" -var splunk_network=EPIC -var splunk_env=PRD -var splunk_appname=LZ -var newrelickey="$(aztec-azure-pr-infrastructure)" -var newrelic_proxy="proxy.nexus.telstra.com.au:8080" -var ado_server_url="$(System.CollectionUri)" -var azuredevops_project="$(AppInfraProjectName)" -var ado_pat_token="$(System.AccessToken)"'
+    ${{ else }}:
+      stage2SubId: "<<app_subscription>>"
+      stage2additionalParameters: '-var env_specific_config=alz_variables_$(stage2Env)_$(stage2Region).json -var env_global_config="alz_variables_$(stage2Env)_global.json" -var env_specific_nsg_rules=nsg_rules_$(stage2Env)_$(stage2Region).csv -var env_specific_route_rules=route_rules_$(stage2Env)_$(stage2Region).csv'

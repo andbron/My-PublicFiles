@@ -1,0 +1,137 @@
+{
+  "file_purpose": "This file abstracts the input variable values to a JSON schema removing the Terraform/variables dependency. Parameters specified in this file are applicable for a specific stage or environment.",
+  "input_parameters": {
+    "app_short_name": "unique app id ie <aNNNN>",
+    "app_type": "<internal> or <external>",
+    "connectivity_sub_id": "97b054ff-1d76-4939-964d-358a6ac6e51b", //remove this comment but do not modify the value
+    "management_sub_id": "d6e5dd63-38ba-4c6b-bee0-a25ecaa65664", //remove this comment but do not modify the value
+    "shared_sub_id": "dbd23b8a-ab6e-4c3f-9571-d6777ef9301c", //remove this comment but do not modify the value
+    "private_dns_zone_rg": "tcg-npae-shared-private_dns-rg001", //remove this comment but do not modify the value
+    "monitoring_sub_id": "d232763e-e4f4-4fb1-909b-dd83b4275a5b", //remove this comment but do not modify the value
+    "alz_sub_id": "<alz subscription id>",
+    "alz_sub_name": "<alz subscription name>",
+    "environment": "non_production", //remove this comment but do not modify the value
+    "providers": [], //If this ALZ deployment will host Virtual Machines then at least the "Microsoft.Compute" provider needs to be declared here
+    "resource_groups": "1",
+    "tags": {
+      "telstra_applicationid": "ie: <app-NNNN>",
+      "telstra_environmentclass": "ie: <nonproduction>",
+      "telstra_environmentuse": "options include <dev> <test> <prod> <dr> <staging> <svt> <sit> <cat> <sandpit> <poc> <training> <sandbox> <other>",
+      "telstra_internetfacing": "ie: true or false",
+      "telstra_platform": "ie: az-tech",
+      "telstra_version": "ie: 1.0",
+      "telstra_dataclassification": "options include <highly-restricted> <restricted> <confidential> <internal> <general> <unrestricted>",
+      "telstra_dataclassificationsubtype": "options include <pii> <pci-dss> <health> <govt> <defence> <none>",
+      "telstra_dataregion": "country/region name or “none” ie: <au> <eu> <sg> <none>",
+      "telstra_costcentre": "sap cost centre identifier ie: <NITPHT> <sdas22>",
+      "app_aztech_contact": "email@team.telstra.com",
+      "telstra_atostatus": "value should be changed to Live after ATO is completed ie: Live or Non-Live"
+    },
+    "rbac": {
+      // remove and add roles as needed per scope. The Pool's UAMI created as part of the ALZ Pool pipeline needs to be added to all roles
+      "subscription": [
+        {
+          "role": "Reader",
+          "objectIds": [
+            "enter the App Read Only Teams AAD Group Object Id",
+            "enter the App Admin Teams AAD Group Object Id",
+            "enter the GSI Teams AAD Group Object Id",
+            "enter AAD Object ID of Agent Managed Identity (UAMI)"
+          ]
+        },
+        {
+          "role": "Support Request Contributor",
+          "objectIds": ["enter the App Admin Teams AAD Group Object Id"]
+        }
+      ],
+      "management_resource_group": [
+        {
+          "role": "Storage Blob Data Reader",
+          "objectIds": ["enter the App Admin Teams AAD Group Object Id"]
+        },
+        {
+          "role": "Storage Blob Data Contributor",
+          "objectIds": ["enter AAD Object ID of Agent Managed Identity (UAMI)"]
+        },
+        {
+          "role": "Storage Account Key Operator Service Role",
+          "objectIds": ["enter AAD Object ID of Agent Managed Identity (UAMI)"]
+        },
+        {
+          "role": "Key Vault Secrets User",
+          "objectIds": ["enter AAD Object ID of Agent Managed Identity (UAMI)"]
+        }
+      ],
+      "monitoring_resource_group": [
+        {
+          "role": "Storage Account Key Operator Service Role",
+          "objectIds": ["enter AAD Object ID of Agent Managed Identity (UAMI)"]
+        }
+      ],
+      "network_resource_group": [
+        {
+          "role": "Subnet Joiner",
+          "objectIds": [
+            "enter the App Admin Teams AAD Group Object Id",
+            "enter AAD Object ID of Agent Managed Identity (UAMI)"
+          ]
+        }
+      ],
+      "resource_group": [
+        {
+          "role": "TCG Contributor",
+          "objectIds": ["enter AAD Object ID of Agent Managed Identity (UAMI)"]
+        },
+        {
+          "role": "TCG AppAdmin",
+          "objectIds": ["enter the App Admin Teams AAD Group Object Id"]
+        },
+        {
+          "role": "User Access Administrator",
+          "objectIds": ["enter AAD Object ID of Agent Managed Identity (UAMI)"]
+        },
+        {
+          "role": "Storage Blob Data Contributor",
+          "objectIds": [
+            "enter the App Admin Teams AAD Group Object Id",
+            "enter AAD Object ID of Agent Managed Identity (UAMI)",
+            "enter the GSI Teams AAD Group Object Id"
+          ]
+        },
+        {
+          "role": "Key Vault Administrator",
+          "objectIds": [
+            "enter the App Admin Teams AAD Group Object Id",
+            "enter AAD Object ID of Agent Managed Identity (UAMI)"
+          ]
+        },
+        {
+          "role": "Key Vault Secrets User",
+          "objectIds": ["enter the GSI Teams AAD Group Object Id"]
+        }
+      ]
+    },
+    "agent_pool": {
+      "create_pool": false, //remove this comment but do not modify the value
+      "network_sub_id": "99fffa94-17f5-43d1-af54-ea5305e24d3c", //remove this comment but do not modify the value
+      "admin_username": "azure-user", //remove this comment but do not modify the value
+      "private_ip_address_allocation": "Static", //remove this comment but do not modify the value
+      "private_ip_address": "TBD", // Pick a free IP address from tcg-npae-devsec-snet001 (TCG)
+      "cse_script_name": "bootstrap_ado_agent.sh", //remove this comment but do not modify the value
+      "enable_cloudinit": false, //remove this comment but do not modify the value
+      "pool_name": "<<app id>>_np",
+      "proxy_url": "http://proxy.nexus.telstra.com.au:8080", //remove this comment but do not modify the value
+      "ado_agent_version": "3.220.5", //remove this comment but do not modify the value
+      "source_image_id": "/subscriptions/dbd23b8a-ab6e-4c3f-9571-d6777ef9301c/resourceGroups/tcg-npae-shared-compute_gallery-rg001/providers/Microsoft.Compute/galleries/tcgnpaesharedacg001/images/tcg-np-ae-shared-acgd-ado01/versions/1.0.1", //remove this comment but do not modify the value
+      "rbac": {
+        "TCG DNSContributor": [
+          "/subscriptions/dbd23b8a-ab6e-4c3f-9571-d6777ef9301c/resourceGroups/tcg-npae-shared-private_dns-rg001" //remove this comment but do not modify the value
+        ],
+        "reader": [
+          "/subscriptions/dbd23b8a-ab6e-4c3f-9571-d6777ef9301c/resourceGroups/tcg-npae-shared-compute_gallery-rg001/providers/Microsoft.Compute/galleries/tcgnpaesharedacg001", //remove this comment but do not modify the value
+          "/subscriptions/dbd23b8a-ab6e-4c3f-9571-d6777ef9301c/resourceGroups/tcg-npase-shared-compute_gallery-rg001/providers/Microsoft.Compute/galleries/tcgnpasesharedacg001" //remove this comment but do not modify the value
+        ]
+      }
+    }
+  }
+}
