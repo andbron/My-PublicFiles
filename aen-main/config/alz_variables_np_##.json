@@ -1,0 +1,69 @@
+{
+  "file_purpose": "This file abstracts the input variable values to a JSON schema removing the Terraform/variables dependency. Parameters specified in this file are applicable for a specific stage or environment.",
+  "input_parameters": {
+    "location": "azure region ie: <australiaeast>",
+    "environment_location_id": "2 char environment np or pd plus 2/3 char location ae or ase ie: <npae> <pdase>",
+    "primary_region": true, //set to false for secondary regions
+    "vnets": [
+      {
+        "symbolic_name": "vnet1",
+        "address_space": ["<vnet CIDR in the format XX.XX.XX.XX/XX>"],
+        "dns_servers": "10.221.10.135",
+        "subnets": [
+          {
+            "symbolic_name": "subnet1",
+            "address_prefixes": "<subnet01 CIDR in the format XX.XX.XX.XX/XX>",
+            "delegation": {
+              "delegation_name": "",
+              "service_delegation_name": "",
+              "service_delegation_actions": []
+            },
+            "service_endpoints": [],
+            "service_endpoint_policy_ids": [],
+            "route_table_assoc": true
+          },
+          {
+            "symbolic_name": "subnet2",
+            "address_prefixes": "<subnet02 CIDR in the format XX.XX.XX.XX/XX>",
+            "delegation": {
+              "delegation_name": "",
+              "service_delegation_name": "",
+              "service_delegation_actions": []
+            },
+            "service_endpoints": [],
+            "service_endpoint_policy_ids": [],
+            "route_table_assoc": true
+          }
+        ],
+        "address_prefixes_private_endpoint": "<subnet CIDR in the format XX.XX.XX.XX/XX>"
+      },
+      {
+        "symbolic_name": "vnet2",
+        "address_space": ["<vnet CIDR in the format XX.XX.XX.XX/XX>"],
+        "dns_servers": "10.221.10.135",
+        "subnets": [
+          {
+            "symbolic_name": "subnet3",
+            "address_prefixes": "<subnet01 CIDR in the format XX.XX.XX.XX/XX>",
+            "delegation": {
+              "delegation_name": "",
+              "service_delegation_name": "",
+              "service_delegation_actions": []
+            },
+            "service_endpoints": [],
+            "service_endpoint_policy_ids": [],
+            "route_table_assoc": true
+          }
+        ],
+        "address_prefixes_private_endpoint": "<subnet CIDR in the format XX.XX.XX.XX/XX>"
+      }
+    ],
+    "agent_pool": {
+      //remove this comment but do not modify object values accept for the dns server IP value
+      "telstra_dns": "10.221.10.135",
+      "virtual_network_rg_name": "aen-npae-devsec-network-rg001",
+      "virtual_network_name": "aen-npae-devsec-vnet001",
+      "subnet_name": "aen-npae-devsec-snet001"
+    }
+  }
+}
